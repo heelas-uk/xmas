@@ -1,39 +1,33 @@
 import smtplib
+import ssl
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.encoders import encode_base64
+from cryptography.fernet import Fernet
 from email.mime.text import MIMEText
 import streamlit as st
+smtp_server = "smtp.heelas.uk"
+smtp_port = 465  # Use 587 for STARTTLS
+sender_email = "xmas@heelas.uk"
+sender_password = "Es5f9c150"
+
 
 st.title("Xmas quiz email sender")
+subject = "xmas quiz"
+recipient_email = st.text_input("Recipient: ")
+custom_message = st.text_input("Custom input:")
+question = st.text_input("Question")
+ans1 = st.text_input("Ans 1:")
+ans2 = st.text_input("Ans 2:")
+ans3 = st.text_input("Ans 3:")
+ans4 = st.text_input("Ans 4:")
 
-sender_email = 'xmas@heelas.uk'  # Replace with your email
-sender_password = 'Wg495e5af'  # Replace with your password (store securely)
+msg = MIMEMultipart()
+msg['From'] = sender_email
+msg['To'] = recipient_email
+msg['Subject'] = subject
 
-recipient_list = st.text_input("Enter comma-separated email addresses:")
-custom_message = st.text_input("Custom message")
-
-
-def send_email(recipients, subject, html_content):
-    # Sends an email to multiple recipients using SMTP.
-    #
-    # Args:
-    #     recipients (list): A list of recipient email addresses.
-    #     subject (str): The email subject.
-    #     html_content (str): The HTML content of the email body.
-
-    recipients = ", ".join(recipients)  # Join list into comma-separated string
-
-    msg = MIMEText(html_content, "html")
-    msg['Subject'] = subject
-    msg['From'] = sender_email
-    msg['To'] = recipients  # Set recipient here, outside the loop
-
-    with smtplib.SMTP_SSL('smtp.heelas.uk', 465) as smtp:
-        smtp.login(sender_email, sender_password)
-        smtp.send_message(msg)
-
-
-subject = "Xmas quiz Day: " + st.text_input("What is the day today?")
-
-html_content = """
+body = """
 <!DOCTYPE html>
 <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
@@ -291,7 +285,7 @@ html_content = """
                     <tr>
                      <td valign="top" align="center">
                       <div class="pc-font-alt pc-w620-fontSize-16 pc-w620-lineHeight-163pc" style="line-height: 156%; letter-spacing: -0.2px; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 300; font-variant-ligatures: normal; color: #ffffff; text-align: center; text-align-last: center;">
-                       <div><span> """ + custom_message + """ </span>
+                       <div><span> """ + "Vote at heelas.uk/vote your username is your full email \n "+custom_message + """ </span>
                        </div>
                       </div>
                      </td>
@@ -307,7 +301,7 @@ html_content = """
                     <tr>
                      <td valign="top" align="center">
                       <div class="pc-font-alt" style="line-height: 100px; letter-spacing: -0.2px; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-size: 50px; font-weight: normal;font-style: italic; font-variant-ligatures: normal; color: #e8ecf0; text-align: center; text-align-last: center;">
-                       <div><span style="font-weight: 700;font-style: italic;color: rgb(232, 236, 240);">"What is the name of santa clause&#39;s wife?"</span>
+                       <div><span style="font-weight: 700;font-style: italic;color: rgb(232, 236, 240);">"""+ question + """</span>
                        </div>
                       </div>
                      </td>
@@ -327,7 +321,7 @@ html_content = """
                         <tr>
                          <td valign="top" align="left">
                           <div class="pc-font-alt" style="line-height: 140%; letter-spacing: -0.2px; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-size: 25px; font-weight: normal; font-variant-ligatures: normal; color: #e8ecf0; text-align: left; text-align-last: left;">
-                           <div><span style="color: #e8ecf0;">Mrs. Noel</span>
+                           <div><span style="color: #e8ecf0;">"""+"A) "+ ans1 +"""</span>
                            </div>
                           </div>
                          </td>
@@ -339,7 +333,7 @@ html_content = """
                         <tr>
                          <td valign="top" align="left">
                           <div class="pc-font-alt" style="line-height: 140%; letter-spacing: -0.2px; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-size: 25px; font-weight: normal; font-variant-ligatures: normal; color: #e8ecf0; text-align: left; text-align-last: left;">
-                           <div><span style="color: #e8ecf0;">Mrs. North</span>
+                           <div><span style="color: #e8ecf0;">"""+"B) "+ ans2 +"""</span>
                            </div>
                           </div>
                          </td>
@@ -353,7 +347,7 @@ html_content = """
                         <tr>
                          <td valign="top" align="left">
                           <div class="pc-font-alt" style="line-height: 140%; letter-spacing: -0.2px; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-size: 25px; font-weight: normal; font-variant-ligatures: normal; color: #333333; text-align: left; text-align-last: left;">
-                           <div><span style="color: #e8ecf0;">Mrs. Claus</span>
+                           <div><span style="color: #e8ecf0;">"""+ "C) "+ ans3+"""</span>
                            </div>
                           </div>
                          </td>
@@ -365,7 +359,7 @@ html_content = """
                         <tr>
                          <td valign="top" align="left">
                           <div class="pc-font-alt" style="line-height: 140%; letter-spacing: -0.2px; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-size: 25px; font-weight: normal; font-variant-ligatures: normal; color: #e8ecf0; text-align: left; text-align-last: left;">
-                           <div><span style="color: #e8ecf0;">Mrs. Christmas</span>
+                           <div><span style="color: #e8ecf0;">"""+"D) "+ans4+"""</span>
                            </div>
                           </div>
                          </td>
@@ -425,9 +419,10 @@ html_content = """
 
 </html>
 
-
 """
-
-if st.button("Send Email"):
-    send_email(recipient_list, subject, html_content)
-    st.success("Email sent successfully!")
+msg.attach(MIMEText(body, 'html'))
+if st.button("Send"):
+    with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, recipient_email, msg.as_string())
+st.success("Emails sent successfully!")
