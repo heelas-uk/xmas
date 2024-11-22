@@ -6,6 +6,7 @@ from email.encoders import encode_base64
 from cryptography.fernet import Fernet
 from email.mime.text import MIMEText
 import streamlit as st
+import email 
 smtp_server = st.secrets["smtp_server"]
 smtp_port = 465  # Use 587 for STARTTLS
 sender_email = st.secrets["sender_email"]
@@ -26,6 +27,8 @@ msg = MIMEMultipart()
 msg['From'] = sender_email
 msg['To'] = recipient_email
 msg['Subject'] = subject
+msg['Date'] = email.utils.formatdate()
+msg['Message-ID'] = email.utils.make_msgid(domain='heelas.uk')
 
 body = """
 <!DOCTYPE html>
@@ -129,7 +132,7 @@ body = """
              -webkit-text-size-adjust: 100%;
              -ms-text-size-adjust: 100%;
              mso-line-height-rule: exactly;
-         }
+         }\n
  
          img {
              border: 0;
@@ -285,7 +288,7 @@ body = """
                     <tr>
                      <td valign="top" align="center">
                       <div class="pc-font-alt pc-w620-fontSize-16 pc-w620-lineHeight-163pc" style="line-height: 156%; letter-spacing: -0.2px; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 300; font-variant-ligatures: normal; color: #ffffff; text-align: center; text-align-last: center;">
-                       <div><span> """ + "Vote at heelas.uk/vote your username is your full email \n "+custom_message + """ </span>
+                       <div><span> """ + "Vote at heelas.uk/vote your username is your full email:  \n "+custom_message + """ </span>
                        </div>
                       </div>
                      </td>
