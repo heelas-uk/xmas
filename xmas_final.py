@@ -3,7 +3,6 @@ import ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.encoders import encode_base64
-from cryptography.fernet import Fernet
 from email.mime.text import MIMEText
 import streamlit as st
 import email 
