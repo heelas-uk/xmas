@@ -6,10 +6,10 @@ from email.encoders import encode_base64
 from cryptography.fernet import Fernet
 from email.mime.text import MIMEText
 import streamlit as st
-smtp_server = "smtp.heelas.uk"
+smtp_server = st.secrets["smtp_server"]
 smtp_port = 465  # Use 587 for STARTTLS
-sender_email = "xmas@heelas.uk"
-sender_password = "Es5f9c150"
+sender_email = st.secrets["sender_email"]
+sender_password = st.secrets["sender_password"]
 
 
 st.title("Xmas quiz email sender")
