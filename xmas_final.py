@@ -10,7 +10,7 @@ smtp_server = st.secrets["smtp_server"]
 smtp_port = 465  # Use 587 for STARTTLS
 sender_email = st.secrets["sender_email"]
 sender_password = st.secrets["sender_password"]
-
+pin = st.secrets["pin"]
 
 st.title("Xmas quiz email sender")
 subject = "xmas quiz"
@@ -423,8 +423,11 @@ body = """
 
 """
 msg.attach(MIMEText(body, 'html'))
-if st.button("Send"):
-    with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, recipient_email, msg.as_string())
-st.success("Emails sent successfully!")
+if pin == st.text_input("PIN"):
+    if st.button("Send"):
+        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, recipient_email, msg.as_string())
+        st.success("Emails sent successfully!")
+else:
+    st.error("Pin incorrect")
