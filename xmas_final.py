@@ -6,13 +6,15 @@ from email.encoders import encode_base64
 from email.mime.text import MIMEText
 import streamlit as st
 import email 
+import requests
+
 smtp_server = st.secrets["smtp_server"]
 smtp_port = 465  # Use 587 for STARTTLS
 sender_email = st.secrets["sender_email"]
 sender_password = st.secrets["sender_password"]
 pin = st.secrets["pin"]
 
-st.title("Xmas quiz email sender")
+st.title("Xmas quiz admin panel")
 subject = "xmas quiz"
 recipient_email = st.text_input("Recipient: ")
 custom_message = st.text_input("Custom input:")
@@ -21,6 +23,7 @@ ans1 = st.text_input("Ans 1:")
 ans2 = st.text_input("Ans 2:")
 ans3 = st.text_input("Ans 3:")
 ans4 = st.text_input("Ans 4:")
+day = st.text_input("Day number only")
 
 msg = MIMEMultipart()
 msg['From'] = sender_email
@@ -422,12 +425,66 @@ body = """
 </html>
 
 """
+
+url = "https://heelas.uk/save_q.php"  # Replace with your actual URL
+
+data = {
+    "question": question,
+    "day": day,
+    "ans1": ans2,
+    "ans2": ans2,
+    "ans3": ans3,
+    "ans4": ans4
+}
+
+
+
+
+
+
 msg.attach(MIMEText(body, 'html'))
 if pin == st.text_input("PIN"):
     if st.button("Send"):
         with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
             server.login(sender_email, sender_password)
             server.sendmail(sender_email, recipient_email, msg.as_string())
+            
         st.success("Emails sent successfully!")
+    
+        response = requests.post(url, data=data)
+
+        if response.status_code == 200:
+            st.success("Data sent successfully!")
+        else:
+            print("Error sending data:", response.text)
+    
+
+
 else:
     st.error("Pin incorrect")
+
+
+import streamlit as st
+import requests
+
+def get_data_by_day(day):
+    url = f"https://heelas.uk/get_data.php?day={day}"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.text
+        lines = data.split("<br>")
+
+        for i, line in enumerate(lines):
+            st.write(line)
+            if (i + 1) % 3 == 0:
+                st.markdown("---")
+    else:
+        st.error(f"Error fetching data: {response.status_code}")
+
+# User input for day
+day = st.number_input("Enter Day:", min_value=1, max_value=500)
+
+# Button to trigger data fetching
+if st.button("Get Data"):
+    get_data_by_day(day)
