@@ -52,6 +52,21 @@ msg['Subject'] = subject
 msg['Date'] = email.utils.formatdate()
 msg['Message-ID'] = email.utils.make_msgid(domain='heelas.uk')
 
+def get_data_by_day(day):
+    url = f"https://heelas.uk/get_data.php?day={day}"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.text
+        lines = data.split("<br>")
+
+        for i, line in enumerate(lines):
+            st.write(line)
+            if (i + 1) % 3 == 0:
+                st.markdown("---")
+    else:
+        st.error(f"Error fetching data: {response.status_code}")
+
 body = """
 <!DOCTYPE html>
 <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -463,7 +478,8 @@ data = {
 
 
 msg.attach(MIMEText(body, 'html'))
-if pin == st.text_input("PIN"):
+pininput = st.text_input("PIN")
+if pin == pininput:
   if st.button("Send"):
     for recipient in recipients:
       msg['To'] = recipient
@@ -479,33 +495,20 @@ if pin == st.text_input("PIN"):
     else:
         print("Error sending data:", response.text)
     
+if pin == pininput:
+    # User input for day
+    day = st.number_input("Enter Day:", min_value=1, max_value=500)
+
+    # Button to trigger data fetching
+    if st.button("Get Data"):
+        get_data_by_day(day)
+    
 
 
 else:
     st.error("Pin incorrect")
 
 
-import streamlit as st
-import requests
 
-def get_data_by_day(day):
-    url = f"https://heelas.uk/get_data.php?day={day}"
-    response = requests.get(url)
 
-    if response.status_code == 200:
-        data = response.text
-        lines = data.split("<br>")
 
-        for i, line in enumerate(lines):
-            st.write(line)
-            if (i + 1) % 3 == 0:
-                st.markdown("---")
-    else:
-        st.error(f"Error fetching data: {response.status_code}")
-
-# User input for day
-day = st.number_input("Enter Day:", min_value=1, max_value=500)
-
-# Button to trigger data fetching
-if st.button("Get Data"):
-    get_data_by_day(day)
