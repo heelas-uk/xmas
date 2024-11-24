@@ -1,12 +1,11 @@
 import smtplib
-import ssl
 from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email.encoders import encode_base64
 from email.mime.text import MIMEText
 import streamlit as st
 import email 
 import requests
+import csv
+import io
 
 smtp_server = st.secrets["smtp_server"]
 smtp_port = 465  # Use 587 for STARTTLS
@@ -16,7 +15,27 @@ pin = st.secrets["pin"]
 
 st.title("Xmas quiz admin panel")
 subject = "xmas quiz"
-recipient_email = st.text_input("Recipient: ")
+
+uploaded_file = st.file_uploader("Upload a CSV file with recipient emails")
+
+if uploaded_file is not None:
+    # Read the uploaded file content as bytes
+    file_bytes = uploaded_file.getvalue()
+
+    # Create a file-like object from the bytes using io.BytesIO
+    decoded_file = io.BytesIO(file_bytes)
+
+    # Open the file-like object in text mode using io.TextIOWrapper
+    reader = csv.reader(io.TextIOWrapper(decoded_file, encoding='utf-8'))
+    recipients = [row[0] for row in reader]
+
+    # Display the recipients to the user
+    st.write("Recipients:")
+    for recipient in recipients:
+        st.write("- " + recipient)
+
+
+#recipient_email = st.text_input("Recipient: ")
 custom_message = st.text_input("Custom input:")
 question = st.text_input("Question")
 ans1 = st.text_input("Ans 1:")
@@ -25,9 +44,10 @@ ans3 = st.text_input("Ans 3:")
 ans4 = st.text_input("Ans 4:")
 day = st.text_input("Day of December")
 
+
 msg = MIMEMultipart()
 msg['From'] = sender_email
-msg['To'] = recipient_email
+#msg['To'] = recipient_email
 msg['Subject'] = subject
 msg['Date'] = email.utils.formatdate()
 msg['Message-ID'] = email.utils.make_msgid(domain='heelas.uk')
@@ -444,19 +464,20 @@ data = {
 
 msg.attach(MIMEText(body, 'html'))
 if pin == st.text_input("PIN"):
-    if st.button("Send"):
-        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, recipient_email, msg.as_string())
-            
-        st.success("Emails sent successfully!")
+  if st.button("Send"):
+    for recipient in recipients:
+      msg['To'] = recipient
+      with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, recipient, msg.as_string())
+    st.success("Emails sent successfully!")
     
-        response = requests.post(url, data=data)
+    response = requests.post(url, data=data)
 
-        if response.status_code == 200:
-            st.success("Data sent successfully!")
-        else:
-            print("Error sending data:", response.text)
+    if response.status_code == 200:
+        st.success("Data sent successfully!")
+    else:
+        print("Error sending data:", response.text)
     
 
 
