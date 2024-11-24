@@ -23,7 +23,7 @@ ans1 = st.text_input("Ans 1:")
 ans2 = st.text_input("Ans 2:")
 ans3 = st.text_input("Ans 3:")
 ans4 = st.text_input("Ans 4:")
-day = st.text_input("Day number only")
+day = st.text_input("Day of December")
 
 msg = MIMEMultipart()
 msg['From'] = sender_email
@@ -384,9 +384,9 @@ body = """
         <table border="0" cellpadding="0" cellspacing="0" role="presentation" align="center" style="border-collapse: separate; border-spacing: 0; margin-right: auto; margin-left: auto;">
             <tr>
                 <td valign="middle" align="center" style="border-radius: 8px; background-color: #1595e7; text-align:center; color: #ffffff; padding: 15px 17px 15px 17px; mso-padding-left-alt: 0; margin-left:17px;" bgcolor="#1595e7">
-                                    <a class="pc-font-alt" style="display: inline-block; text-decoration: none; font-variant-ligatures: normal; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-weight: 500; font-size: 16px; line-height: 150%; letter-spacing: -0.2px; text-align: center; color: #ffffff;" href="heelas.uk/vote"><span style="display: block;"><span>Submit my answer</span></span></a>
+                                    <a class="pc-font-alt" style="display: inline-block; text-decoration: none; font-variant-ligatures: normal; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-weight: 500; font-size: 16px; line-height: 150%; letter-spacing: -0.2px; text-align: center; color: #ffffff;" href="https://www.heelas.uk/vote"><span style="display: block;"><span>Submit my answer</span></span></a>
                                 </td>
-            </tr>
+            </tr> 
         </table>
         <![endif]-->
                    <!--[if !mso]><!-- -->
