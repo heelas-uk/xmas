@@ -30,7 +30,7 @@ day = st.text_input("Day of December")
 
 msg = MIMEMultipart()
 msg['From'] = sender_email
-#msg['To'] = recipient_email
+msg['To'] = recipient_email
 msg['Subject'] = subject
 msg['Date'] = email.utils.formatdate()
 msg['Message-ID'] = email.utils.make_msgid(domain='heelas.uk')
@@ -464,11 +464,10 @@ msg.attach(MIMEText(body, 'html'))
 pininput = st.text_input("PIN")
 if pin == pininput:
   if st.button("Send"):
-      msg['To'] = recipient_email
       with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, recipient_email, msg.as_string())
-    st.success("Emails sent successfully!")
+        st.success("Emails sent successfully!")
     
     response = requests.post(url, data=data)
 
