@@ -1,32 +1,26 @@
 import smtplib
+import ssl
 from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.encoders import encode_base64
 from email.mime.text import MIMEText
 import streamlit as st
 import email 
-import requests
-import csv
-import io
-
 smtp_server = st.secrets["smtp_server"]
 smtp_port = 465  # Use 587 for STARTTLS
 sender_email = st.secrets["sender_email"]
 sender_password = st.secrets["sender_password"]
-pin = st.secrets["pin"]
 
-st.title("Xmas quiz admin panel")
+
+st.title("Xmas quiz email sender")
 subject = "xmas quiz"
-
-
-
-recipient_email = st.text_input("Recipients: ")
+recipient_email = st.text_input("Recipient: ")
 custom_message = st.text_input("Custom input:")
 question = st.text_input("Question")
 ans1 = st.text_input("Ans 1:")
 ans2 = st.text_input("Ans 2:")
 ans3 = st.text_input("Ans 3:")
 ans4 = st.text_input("Ans 4:")
-day = st.text_input("Day of December")
-
 
 msg = MIMEMultipart()
 msg['From'] = sender_email
@@ -35,20 +29,6 @@ msg['Subject'] = subject
 msg['Date'] = email.utils.formatdate()
 msg['Message-ID'] = email.utils.make_msgid(domain='heelas.uk')
 
-def get_data_by_day(day):
-    url = f"https://heelas.uk/get_data.php?day={day}"
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        data = response.text
-        lines = data.split("<br>")
-
-        for i, line in enumerate(lines):
-            st.write(line)
-            if (i + 1) % 3 == 0:
-                st.markdown("---")
-    else:
-        st.error(f"Error fetching data: {response.status_code}")
 
 body = """
 <!DOCTYPE html>
@@ -267,7 +247,7 @@ body = """
                 <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
                  <tr>
                   <td class="pc-w620-spacing-0-0-40-0" align="center" valign="top" style="padding: 0px 0px 60px 0px;">
-                   <img src="https://cloudfilesdm.com/postcards/image-1732046840920.jpg" width="125" height="125" alt="" style="display: block; outline: 0; line-height: 100%; -ms-interpolation-mode: bicubic; width: 125px; height: auto; max-width: 100%; border: 0;" />
+                   <img src="https://heelas.uk/wp-content/uploads/2024/11/image-1732046840920.jpg" width="125" height="125" alt="Logo" style="display: block; outline: 0; line-height: 100%; -ms-interpolation-mode: bicubic; width: 125px; height: auto; max-width: 100%; border: 0;" />
                   </td>
                  </tr>
                 </table>
@@ -308,7 +288,7 @@ body = """
                     <tr>
                      <td valign="top" align="center">
                       <div class="pc-font-alt pc-w620-fontSize-16 pc-w620-lineHeight-163pc" style="line-height: 156%; letter-spacing: -0.2px; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 300; font-variant-ligatures: normal; color: #ffffff; text-align: center; text-align-last: center;">
-                       <div><span> """ + "Vote at heelas.uk/vote your username is your full email:  \n "+custom_message + """ </span>
+                       <div><span> """ + "Vote at heelas.uk/vote your username is either your full name or your set username:  \n "+custom_message + """ </span>
                        </div>
                       </div>
                      </td>
@@ -402,9 +382,9 @@ body = """
         <table border="0" cellpadding="0" cellspacing="0" role="presentation" align="center" style="border-collapse: separate; border-spacing: 0; margin-right: auto; margin-left: auto;">
             <tr>
                 <td valign="middle" align="center" style="border-radius: 8px; background-color: #1595e7; text-align:center; color: #ffffff; padding: 15px 17px 15px 17px; mso-padding-left-alt: 0; margin-left:17px;" bgcolor="#1595e7">
-                                    <a class="pc-font-alt" style="display: inline-block; text-decoration: none; font-variant-ligatures: normal; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-weight: 500; font-size: 16px; line-height: 150%; letter-spacing: -0.2px; text-align: center; color: #ffffff;" href="https://www.heelas.uk/vote"><span style="display: block;"><span>Submit my answer</span></span></a>
+                                    <a class="pc-font-alt" style="display: inline-block; text-decoration: none; font-variant-ligatures: normal; font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-weight: 500; font-size: 16px; line-height: 150%; letter-spacing: -0.2px; text-align: center; color: #ffffff;" href="heelas.uk/vote"><span style="display: block;"><span>Submit my answer</span></span></a>
                                 </td>
-            </tr> 
+            </tr>
         </table>
         <![endif]-->
                    <!--[if !mso]><!-- -->
@@ -443,53 +423,9 @@ body = """
 </html>
 
 """
-
-url = "https://heelas.uk/save_q.php"  # Replace with your actual URL
-
-data = {
-    "question": question,
-    "day": day,
-    "ans1": ans2,
-    "ans2": ans2,
-    "ans3": ans3,
-    "ans4": ans4
-}
-
-
-
-
-
-
 msg.attach(MIMEText(body, 'html'))
-pininput = st.text_input("PIN")
-if pin == pininput:
-  if st.button("Send"):
-      with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+if st.button("Send"):
+    with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, recipient_email, msg.as_string())
         st.success("Emails sent successfully!")
-    
-    response = requests.post(url, data=data)
-
-    if response.status_code == 200:
-        st.success("Data sent successfully!")
-    else:
-        print("Error sending data:", response.text)
-    
-if pin == pininput:
-    # User input for day
-    day = st.number_input("Enter Day:", min_value=1, max_value=500)
-
-    # Button to trigger data fetching
-    if st.button("Get Data"):
-        get_data_by_day(day)
-    
-
-
-else:
-    st.error("Pin incorrect")
-
-
-
-
-
