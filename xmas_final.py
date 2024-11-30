@@ -16,26 +16,9 @@ pin = st.secrets["pin"]
 st.title("Xmas quiz admin panel")
 subject = "xmas quiz"
 
-uploaded_file = st.file_uploader("Upload a CSV file with recipient emails")
-
-if uploaded_file is not None:
-    # Read the uploaded file content as bytes
-    file_bytes = uploaded_file.getvalue()
-
-    # Create a file-like object from the bytes using io.BytesIO
-    decoded_file = io.BytesIO(file_bytes)
-
-    # Open the file-like object in text mode using io.TextIOWrapper
-    reader = csv.reader(io.TextIOWrapper(decoded_file, encoding='utf-8'))
-    recipients = [row[0] for row in reader]
-
-    # Display the recipients to the user
-    st.write("Recipients:")
-    for recipient in recipients:
-        st.write("- " + recipient)
 
 
-#recipient_email = st.text_input("Recipient: ")
+recipient_email = st.text_input("Recipients: ")
 custom_message = st.text_input("Custom input:")
 question = st.text_input("Question")
 ans1 = st.text_input("Ans 1:")
@@ -481,8 +464,7 @@ msg.attach(MIMEText(body, 'html'))
 pininput = st.text_input("PIN")
 if pin == pininput:
   if st.button("Send"):
-    for recipient in recipients:
-      msg['To'] = recipient
+      msg['To'] = recipient_email
       with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, recipient, msg.as_string())
