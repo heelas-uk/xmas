@@ -467,7 +467,7 @@ if pin == pininput:
       msg['To'] = recipient_email
       with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
         server.login(sender_email, sender_password)
-        server.sendmail(sender_email, recipient, msg.as_string())
+        server.sendmail(sender_email, recipient_email, msg.as_string())
     st.success("Emails sent successfully!")
     
     response = requests.post(url, data=data)
