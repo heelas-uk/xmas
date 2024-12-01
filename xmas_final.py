@@ -443,5 +443,5 @@ if st.button("Send"):
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, recipient_email, msg.as_string())
         st.success("Emails sent successfully!")
-if st.button("Get data")
+if st.button("Get data"):
     get_data_by_day(day)
