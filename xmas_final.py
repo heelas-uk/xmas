@@ -29,6 +29,20 @@ msg['Subject'] = subject
 msg['Date'] = email.utils.formatdate()
 msg['Message-ID'] = email.utils.make_msgid(domain='heelas.uk')
 
+def get_data_by_day(day):
+    url = f"https://heelas.uk/get_data.php?day={day}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.text
+        lines = data.split("<br>")
+        for i, line in enumerate(lines):
+            st.write(line)
+            if (i + 1) % 3 == 0:
+                st.markdown("---")
+    else:
+        st.error(f"Error fetching data: {response.status_code}")
+     
+
 
 body = """
 <!DOCTYPE html>
@@ -429,3 +443,5 @@ if st.button("Send"):
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, recipient_email, msg.as_string())
         st.success("Emails sent successfully!")
+if st.button("Get data")
+    get_data_by_day(day)
