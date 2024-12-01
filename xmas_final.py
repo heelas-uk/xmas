@@ -1,5 +1,6 @@
 import smtplib
 import ssl
+import requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.encoders import encode_base64
