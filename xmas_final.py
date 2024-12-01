@@ -21,7 +21,7 @@ ans1 = st.text_input("Ans 1:")
 ans2 = st.text_input("Ans 2:")
 ans3 = st.text_input("Ans 3:")
 ans4 = st.text_input("Ans 4:")
-
+day = st.text_input("Day")
 msg = MIMEMultipart()
 msg['From'] = sender_email
 msg['To'] = recipient_email
